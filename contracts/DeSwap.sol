@@ -26,6 +26,9 @@ contract DeSwap {
         token = _token;
     }
 
+    /**
+    * @dev Buys tokens with Ether
+    */
     function buyTokens() public payable {
         // Calculate the number of tokens to buy
         uint tokenAmount = msg.value * rate;
@@ -40,6 +43,9 @@ contract DeSwap {
         emit TokenPurchased(msg.sender, address(token), tokenAmount, rate);
     }
 
+    /**
+    * @dev Sells tokens for Ether
+    */
     function sellTokens(uint _amount) public {
         // User can't sell more tokens than they have
         require(token.balanceOf(msg.sender) >= _amount);
