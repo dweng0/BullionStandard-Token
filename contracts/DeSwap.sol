@@ -3,6 +3,10 @@
 pragma solidity ^0.8.9;
 import './Token.sol';
 
+/**
+* @title DeSwap
+* @dev DeSwap is a simple PoC decentralized exchange for ERC20 tokens.
+*/
 contract DeSwap { 
 
     Token public token;
@@ -30,7 +34,7 @@ contract DeSwap {
     * @dev Buys tokens with Ether
     */
     function buyTokens() public payable {
-        // Calculate the number of tokens to buy
+        // Calculate the number of tokens to buy basedon the exchange rate
         uint tokenAmount = msg.value * rate;
 
         // Require that DeSwap has enough tokens

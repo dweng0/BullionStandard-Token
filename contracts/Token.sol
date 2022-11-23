@@ -9,7 +9,18 @@ library Balances {
     }
 }
 
+/**
+* @title Token
+* @dev Implements ERC20 Token standard: https://eips.ethereum.org/EIPS/eip-20
+*/
 contract Token {
+
+    string public name = "Blockchain Swap Token";
+
+    string public symbol = "BST";
+
+    uint8 public decimals = 18;
+
     mapping(address => uint256) balances;
     using Balances for *;
     mapping(address => mapping (address => uint256)) allowed;
@@ -36,6 +47,13 @@ contract Token {
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
         return true;
+    }
+
+    /**
+    * @dev Returns the total supply for this token
+    */
+    function totalSupply() external view returns (uint) {
+        return 1000000 * 10 ** uint(decimals);
     }
 
     function balanceOf(address tokenOwner) external view returns (uint balance) {
