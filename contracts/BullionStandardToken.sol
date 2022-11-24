@@ -1,4 +1,5 @@
-pragma solidity ^0.8.17;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
 
 // A partial ERC20 interface.
 interface ERC20 {
@@ -18,6 +19,8 @@ interface WETH is ERC20 {
 */
 contract BullionStandard {
 
+    // allow unlimited approval 
+    uint256 public constant MASK = type(uint128).max;
     address public owner;
     string public name;
     string public symbol;
@@ -25,6 +28,8 @@ contract BullionStandard {
 
     address public exchangeProxy; 
     WETH public weth;
+
+    event BoughtTokens(ERC20 sellToken, ERC20 buyToken, uint256 buyAmount);
 
     constructor(WETH _weth, address _exchangeProxy) {
 
@@ -51,27 +56,35 @@ contract BullionStandard {
 
     /**
     * @dev  Steps:
-    * 1. Grant allowance 
+    * 1. security checks
     * 2. Execute ERC20 swap
     * 3. Transfer any leftover ETH (protocol fee refunds) to sender.
+    * 4. Emit event.
     */
     function swap(
         ERC20 sellToken,
         ERC20 buyToken,
-        address payable spender,
-        address payable swapTarget, 
+        address spender,
+        address swapTarget, 
         bytes calldata swapData
         ) public onlyOwner payable {
 
         //1
-        require(sellToken.approve(spender, uint256(-1)), "approve failed");
+        require(sellToken.approve(spender, MASK), "approve failed");
+        require(swapTarget == exchangeProxy, "Please target the exchange proxy");
+
+         uint256 boughtAmount = buyToken.balanceOf(address(this));
 
         //2
-        (bool success ) = swapTarget.call{value: msg.value}(swapData);
+        (bool success, ) = swapTarget.call{value:msg.value}(swapData);
         require(success, 'SWAP_CALL_FAILED');
 
         //3
-        msg.sender.transfer(address(this).balance);
+        payable(msg.sender).transfer(address(this).balance);
+
+        // Use our current buyToken balance to determine how much we've bought.
+        boughtAmount = buyToken.balanceOf(address(this)) - boughtAmount;
+        emit BoughtTokens(sellToken, buyToken, boughtAmount);
     }
 
     /**
@@ -85,7 +98,7 @@ contract BullionStandard {
     * @dev Withdraw ETH held by the contract to the owner
     */
     function withdrawETH(uint256 _amount) public onlyOwner {
-        msg.sender.transfer(_amount);
+        payable(msg.sender).transfer(_amount);
     }
 
     /**
