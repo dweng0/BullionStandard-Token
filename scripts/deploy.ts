@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-
+const TOKEN = 'BullionStandardToken';
 async function main() {
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
   const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
@@ -7,7 +7,9 @@ async function main() {
 
   const lockedAmount = ethers.utils.parseEther("1");
 
-  const Lock = await ethers.getContractFactory("Lock");
+  const bsToken = await ethers.getContractFactory(TOKEN);
+  const bsTokenContract = await bsToken.deploy();
+
   const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
 
   await lock.deployed();
