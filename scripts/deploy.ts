@@ -1,20 +1,24 @@
 import { ethers } from "hardhat";
-const TOKEN = 'BullionStandardToken';
-async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+import * as dotenv from 'dotenv'
+dotenv.config();
+// exported so it can be used for testing
+export const TOKEN = 'BullionStandard';
+export const WETH_ADDRESS = process.env.WETH_ADDRESS;
+export const ZoXExchange = process.env.EXCHANGE;
 
-  const lockedAmount = ethers.utils.parseEther("1");
+async function main() {
+  if(!WETH_ADDRESS) {
+    throw new Error('WETH_ADDRESS not set in .env file');
+  }
+  if(!ZoXExchange) {
+    throw new Error('EXCHANGE not set in .env file');
+  }
 
   const bsToken = await ethers.getContractFactory(TOKEN);
-  const bsTokenContract = await bsToken.deploy();
+  const bsTokenContract = await bsToken.deploy(WETH_ADDRESS, ZoXExchange);
 
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  console.log(`BS deployed to ${bsTokenContract.address}`);
 
-  await lock.deployed();
-
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

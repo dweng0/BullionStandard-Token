@@ -16,6 +16,8 @@ interface WETH is ERC20 {
 /**
 * @title BullionStandard 
 * @dev The BS token
+* Deployed on goerli testnet at 0x07683D70D3752AF5c9598d0124b2Fc6c9D94fc03
+*/
 */
 contract BullionStandard {
 
@@ -107,8 +109,6 @@ contract BullionStandard {
     function withdrawToken(ERC20 _token, uint256 _amount) public onlyOwner {
         require(_token.transfer(msg.sender, _amount), "withdraw failed");
     }
-
-
 
     receive() external payable {    }
 }
